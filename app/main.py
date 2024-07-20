@@ -1,7 +1,7 @@
 import socket
 import threading
-
-PONG = b"+PONG\r\n"
+from .parser import DecoderManager
+from .commands import CommandHandler
 
 def handle_connection(conn, addr):
     print(f"Connection from {addr} in thread {threading.current_thread().name}")
@@ -12,7 +12,12 @@ def handle_connection(conn, addr):
             if not received:
                 disconneted = True
                 break
-            conn.sendall(PONG)
+            
+            data = received.decode()
+            command = DecoderManager.decode(data)
+            response = CommandHandler.response(command)
+            
+            conn.sendall(response.encode())
 
 def main():
     print("Logs from your program will appear here!")
