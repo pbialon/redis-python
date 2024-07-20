@@ -21,8 +21,6 @@ class Decoder:
 class RESP(Encoder, Decoder):
     FIRST_BYTE = None
 
-
-
 class Array(RESP):
     FIRST_BYTE = "*"
 
@@ -53,15 +51,15 @@ class Array(RESP):
         for element in array_elements:
             if not element:
                 continue
-            resp = cls._to_resp(element)
-            decoded_object = resp.decode(element)
+            decoder = DecoderManager.get_decoder(element)
+            decoded_object = decoder.decode(element)
             full_array.append(decoded_object)
 
         return full_array
 
     @classmethod
     def _split_array_elements(cls, data):
-        first_bytes = ''.join(ALL_FIRST_BYTES)
+        first_bytes = ''.join(DecoderManager.all_first_bytes())
         first_bytes_regex = f"(?=[{first_bytes}])" 
         array_elements = re.split(first_bytes_regex, data)
         return array_elements
@@ -73,17 +71,6 @@ class Array(RESP):
         if isinstance(data_to_encode, list):
             return Array
 
-    @classmethod
-    def _first_bytes(cls):
-        return {BulkString.FIRST_BYTE, cls.FIRST_BYTE}
-
-    @classmethod
-    def _to_resp(cls, data):
-        first_byte = data[0]
-        resp = FIRST_BYTES_TO_RESP.get(first_byte)
-        if resp is None:
-            raise ParsingError(f"Invalid first byte {first_byte}")
-        return resp
 
 
 
@@ -128,9 +115,31 @@ class BulkString(RESP):
         
 
 
+class DecoderManager:
+    ALL_FIRST_BYTES = {BulkString.FIRST_BYTE, Array.FIRST_BYTE}
+    FIRST_BYTES_TO_RESP = {
+        BulkString.FIRST_BYTE: BulkString,
+        Array.FIRST_BYTE: Array
+    }
 
-ALL_FIRST_BYTES = {BulkString.FIRST_BYTE, Array.FIRST_BYTE}
-FIRST_BYTES_TO_RESP = {
-    BulkString.FIRST_BYTE: BulkString,
-    Array.FIRST_BYTE: Array
-}
+    @classmethod
+    def decode(cls, data):
+        resp = cls.get_decoder(data)
+        if resp is None:
+            raise ParsingError(f"Invalid first byte {cls._first_byte(data)}")
+        return resp.decode(data)
+    
+    @classmethod
+    def get_decoder(cls, data):
+        first_byte = cls._first_byte(data)
+        return cls.FIRST_BYTES_TO_RESP.get(first_byte)
+    
+    @classmethod
+    def all_first_bytes(cls):
+        return cls.ALL_FIRST_BYTES
+
+    
+    @classmethod
+    def _first_byte(cls, data):
+        return data[0]
+
