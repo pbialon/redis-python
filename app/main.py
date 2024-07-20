@@ -26,8 +26,8 @@ def main():
         threads.append(thread)
         thread.start()
     
-    for thread in threads:
-        thread.join()
+    # for thread in threads:
+    #     thread.join()
 
 
 if __name__ == "__main__":
