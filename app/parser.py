@@ -6,6 +6,8 @@ class ParsingError(Exception):
 class BulkString:
     @classmethod
     def encode(cls, data):
+        if data is None:
+            return "$-1\r\n"
         return f"${len(data)}\r\n{data}\r\n"
     
     @classmethod
@@ -29,7 +31,7 @@ class BulkString:
         length, data, _ = parts
 
         try:
-            length = int(length)
+            length = int(length[1:])
         except ValueError:
             raise ParsingError("Invalid length format")
 
