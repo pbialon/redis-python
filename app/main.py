@@ -6,8 +6,12 @@ PONG = b"+PONG\r\n"
 def handle_connection(conn, addr):
     print(f"Connection from {addr} in thread {threading.current_thread().name}")
     with conn:
-        while True:
-            conn.recv(1024)
+        disconneted = False
+        while not disconneted:
+            received = conn.recv(1024)
+            if not received:
+                disconneted = True
+                break
             conn.sendall(PONG)
 
 def main():
