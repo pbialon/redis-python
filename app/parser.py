@@ -1,14 +1,100 @@
+import re
+from typing import List
+
+
 CRLF = "\r\n"
 
 class ParsingError(Exception):
     pass
 
-class BulkString:
+class Encoder:
+    @classmethod
+    def encode(cls, data):
+        pass
+
+class Decoder:
+    @classmethod
+    def decode(cls, data):
+        pass
+
+
+class RESP(Encoder, Decoder):
+    FIRST_BYTE = None
+
+
+
+class Array(RESP):
+    FIRST_BYTE = "*"
+
+    @classmethod
+    def encode(cls, data: List):
+        if len(data) == 0:
+            return f"{cls.FIRST_BYTE}0{CRLF}"
+
+        length = len(data)
+        encoded_data = f"{cls.FIRST_BYTE}{length}{CRLF}"
+
+        for item in data:
+            encoder = cls._get_encoder(item)
+            encoded_data += encoder.encode(item)
+        
+        return encoded_data
+    
+    @classmethod
+    def decode(cls, data):
+        if not data.startswith(cls.FIRST_BYTE):
+            raise ParsingError(f"No {cls.FIRST_BYTE} at the beginning")
+        
+        array_elements_starting_position = data.find(CRLF) + len(CRLF)
+
+        full_array = []
+        array_elements = cls._split_array_elements(data[array_elements_starting_position:])
+
+        for element in array_elements:
+            if not element:
+                continue
+            resp = cls._to_resp(element)
+            decoded_object = resp.decode(element)
+            full_array.append(decoded_object)
+
+        return full_array
+
+    @classmethod
+    def _split_array_elements(cls, data):
+        first_bytes = ''.join(ALL_FIRST_BYTES)
+        first_bytes_regex = f"(?=[{first_bytes}])" 
+        array_elements = re.split(first_bytes_regex, data)
+        return array_elements
+    
+    @classmethod
+    def _get_encoder(cls, data_to_encode):
+        if isinstance(data_to_encode, str):
+            return BulkString
+        if isinstance(data_to_encode, list):
+            return Array
+
+    @classmethod
+    def _first_bytes(cls):
+        return {BulkString.FIRST_BYTE, cls.FIRST_BYTE}
+
+    @classmethod
+    def _to_resp(cls, data):
+        first_byte = data[0]
+        resp = FIRST_BYTES_TO_RESP.get(first_byte)
+        if resp is None:
+            raise ParsingError(f"Invalid first byte {first_byte}")
+        return resp
+
+
+
+class BulkString(RESP):
+    FIRST_BYTE = "$"
+
     @classmethod
     def encode(cls, data):
         if data is None:
-            return "$-1\r\n"
-        return f"${len(data)}\r\n{data}\r\n"
+            return f"{cls.FIRST_BYTE}-1{CRLF}"
+        return f"{cls.FIRST_BYTE}{len(data)}{CRLF}{data}{CRLF}"
     
     @classmethod
     def decode(self, data):
@@ -17,11 +103,11 @@ class BulkString:
         
 
     @classmethod
-    def _parse(self, data):
-        if not data.startswith("$"):
-            raise ParsingError("No $ at the beginning")
+    def _parse(cls, data):
+        if not data.startswith(cls.FIRST_BYTE):
+            raise ParsingError(f"No {cls.FIRST_BYTE} at the beginning")
         
-        if data == "$-1\r\n":
+        if data == f"{cls.FIRST_BYTE}-1{CRLF}":
             return 0, None
         
         parts = data.split(CRLF)
@@ -42,3 +128,9 @@ class BulkString:
         
 
 
+
+ALL_FIRST_BYTES = {BulkString.FIRST_BYTE, Array.FIRST_BYTE}
+FIRST_BYTES_TO_RESP = {
+    BulkString.FIRST_BYTE: BulkString,
+    Array.FIRST_BYTE: Array
+}

@@ -1,5 +1,5 @@
 import unittest
-from app.parser import BulkString, ParsingError
+from app.parser import Array, BulkString, ParsingError
 
 class TestEncodeBulkString(unittest.TestCase):
     def test_encode_string(self):
@@ -51,5 +51,39 @@ class TestDecodeBulkString(unittest.TestCase):
         with self.assertRaises(ParsingError):
             BulkString._parse(invalid_data)
 
-if __name__ == "__main__":
-    unittest.main()
+class TestEncodeArray(unittest.TestCase):
+    def test_encode_empty_array(self):
+        empty_data = []
+        empty_encoded_data = Array.encode(empty_data)
+        self.assertEqual(empty_encoded_data, "*0\r\n")
+
+    def test_encode_array_with_strings(self):
+        data = ["Hello", "World"]
+        encoded_data = Array.encode(data)
+        self.assertEqual(encoded_data, "*2\r\n$5\r\nHello\r\n$5\r\nWorld\r\n")
+
+    @unittest.skip("not supported yet")
+    def test_encode_array_with_integers(self):
+        # not supported yet
+        data = [1, 2, 3]
+        encoded_data = Array.encode(data)
+        self.assertEqual(encoded_data, "*3\r\n$1\r\n1\r\n$1\r\n2\r\n$1\r\n3\r\n")
+
+
+class TestDecodeArray(unittest.TestCase):
+    def test_decode_empty_array(self):
+        encoded_data = "*0\r\n"
+        decoded_data = Array.decode(encoded_data)
+        self.assertEqual(decoded_data, [])
+
+    def test_decode_array_with_strings(self):
+        encoded_data = "*2\r\n$5\r\nHello\r\n$5\r\nWorld\r\n"
+        decoded_data = Array.decode(encoded_data)
+        self.assertEqual(decoded_data, ["Hello", "World"])
+
+    def test_decode_array_with_integers(self):
+        encoded_data = "*3\r\n$1\r\n1\r\n$1\r\n2\r\n$1\r\n3\r\n"
+        decoded_data = Array.decode(encoded_data)
+        self.assertEqual(decoded_data, ['1', '2', '3'])
+
+
