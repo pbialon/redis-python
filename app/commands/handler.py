@@ -13,7 +13,6 @@ class CommandHandler:
         "GET": Get,
         "INFO": Info,
     }
-    
 
     def __init__(self, kv_store, metadata_store):
         self._kv_store = kv_store

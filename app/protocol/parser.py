@@ -140,3 +140,13 @@ class DecoderManager:
     @classmethod
     def _first_byte(cls, data):
         return data[0]
+
+
+class EncoderManager:
+
+    @classmethod
+    def encode(cls, data):
+        if isinstance(data, str):
+            return BulkString.encode(data)
+        if isinstance(data, list):
+            return Array.encode(data)

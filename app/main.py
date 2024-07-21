@@ -1,13 +1,11 @@
 import signal
-import socket
 import sys
-import threading
 import argparse
 
 from app.store.kv_store import KVStore
 from app.store.metadata_store import MetadataStore
-from .protocol.parser import DecoderManager
-from .commands.handler import CommandHandler
+from app.protocol.parser import DecoderManager, EncoderManager
+from app.commands.handler import CommandHandler
 from app.server import Server
 
 
@@ -21,12 +19,14 @@ def create_server(role):
     metadata_store = MetadataStore(role)
     command_handler = CommandHandler(kv_store, metadata_store)
 
-    return Server(command_handler, DecoderManager)
+    return Server(command_handler, metadata_store, DecoderManager, EncoderManager)
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="A simple Redis-like server")
-    parser.add_argument("--host", type=str, default="localhost", help="Host to listen on")
+    parser.add_argument(
+        "--host", type=str, default="localhost", help="Host to listen on"
+    )
     parser.add_argument("--port", type=int, default=6379, help="Port to listen on")
     parser.add_argument("--replicaof", type=str, help="Replicate another server")
     return parser.parse_args()
@@ -45,7 +45,7 @@ def main():
 
     server = create_server(role)
 
-    server.start(args.host, args.port)
+    server.start(args.host, args.port, args.replicaof)
     server.accept_connections()
 
 
