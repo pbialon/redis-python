@@ -1,4 +1,5 @@
 import socket
+import sys
 import threading
 from .parser import DecoderManager
 from .commands import CommandHandler
@@ -23,7 +24,7 @@ def handle_connection(conn, addr, store):
 def main():
     print("Logs from your program will appear here!")
 
-    server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
+    server_socket = socket.create_server(("localhost", port()), reuse_port=True)
     
     store = Store()
 
@@ -36,6 +37,14 @@ def main():
     
     # for thread in threads:
     #     thread.join()
+
+def port():
+    args = sys.argv[2:]
+    if len(args) == 0:
+        return 6379
+    if args[0] == "--port":
+        return int(args[1])
+    return 6379
 
 
 if __name__ == "__main__":

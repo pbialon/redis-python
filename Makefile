@@ -5,4 +5,4 @@ install:
 	pipenv install --dev
 
 run:
-	pipenv run python -m app.main "$@"
+	pipenv run python -m app.main ${PARAMS}
