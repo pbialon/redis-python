@@ -16,7 +16,6 @@ class ReplicaOf:
         self.port = int(port)
 
 
-
 class Server:
     def __init__(self, command_handler, metadata_store, decoder, encoder):
         self._command_handler = command_handler
@@ -25,7 +24,9 @@ class Server:
         self._encoder = encoder
 
     def start(self, server_info, replica_of):
-        self._server_socket = socket.create_server((server_info.host, server_info.port), reuse_port=True)
+        self._server_socket = socket.create_server(
+            (server_info.host, server_info.port), reuse_port=True
+        )
 
         if self._role() == Role.SLAVE:
             self._replication_manager = ReplicationManager(self._encoder, self._decoder)

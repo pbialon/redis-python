@@ -38,12 +38,14 @@ def get_role(args):
         return "master"
     return "slave"
 
+
 def get_replica_of(replicaof):
     if replicaof is None:
         return None
-    
+
     host, port = replicaof.split(" ")
     return ServerInfo(host, int(port))
+
 
 def main():
     signal.signal(signal.SIGINT, signal_handler)

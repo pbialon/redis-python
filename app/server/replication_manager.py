@@ -17,7 +17,7 @@ class ReplicationManager:
 
         self._send(["REPLCONF", "listening-port", f"{self_info.port}"])
         response = self._receive()
-        
+
         self._send(["REPLCONF", "capa", "psync2"])
         response = self._receive()
 

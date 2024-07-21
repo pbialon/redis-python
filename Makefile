@@ -6,3 +6,6 @@ install:
 
 format:
 	pipenv run black .
+
+lint: format
+fmt: format
