@@ -3,9 +3,11 @@ import socket
 import sys
 import threading
 import argparse
+
+from app.store.kv_store import KVStore
+from app.store.metadata_store import MetadataStore
 from .protocol.parser import DecoderManager
 from .commands.handler import CommandHandler
-from .store import Store
 
 
 def signal_handler(sig, frame):
@@ -13,7 +15,8 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
-def handle_connection(conn, addr, store):
+def handle_connection(conn, addr, kv_store, metadata_store):
+    handler = CommandHandler(kv_store, metadata_store)
     with conn:
         disconneted = False
         while not disconneted:
@@ -24,7 +27,7 @@ def handle_connection(conn, addr, store):
 
             data = received.decode()
             command = DecoderManager.decode(data)
-            response = CommandHandler.response(store, command)
+            response = handler.response(command)
 
             conn.sendall(response.encode())
 
@@ -36,12 +39,13 @@ def main():
     server_socket = socket.create_server(("localhost", args.port), reuse_port=True)
 
     role = get_role(args)
-    store = Store(role)
+    kv_store = KVStore()
+    metadata_store = MetadataStore(role, '')
 
     threads = []
     while True:
         conn, addr = server_socket.accept()
-        thread = threading.Thread(target=handle_connection, args=(conn, addr, store))
+        thread = threading.Thread(target=handle_connection, args=(conn, addr, kv_store, metadata_store))
         threads.append(thread)
         thread.start()
 

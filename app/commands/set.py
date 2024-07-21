@@ -1,15 +1,14 @@
-from app.store import SetCommandOptions
+from app.commands.base_command import BaseCommand
+from app.store.kv_store import SetCommandOptions
 
 
-class Set:
-    @classmethod
-    def response(cls, store, *args):
-        set_command_options = cls.get_args(args)
-        store.set(set_command_options)
+class Set(BaseCommand):
+    def response(self, *args):
+        set_command_options = self.get_args(args)
+        self._kv_store.set(set_command_options)
         return f"+OK\r\n"
 
-    @classmethod
-    def get_args(cls, args):
+    def get_args(self, args):
         key = args[0]
         value = args[1]
 

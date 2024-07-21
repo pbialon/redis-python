@@ -13,13 +13,22 @@ class CommandHandler:
         "GET": Get,
         "INFO": Info,
     }
+    
 
-    @classmethod
-    def response(cls, store, command):
+    def __init__(self, kv_store, metadata_store):
+        self._kv_store = kv_store
+        self._metadata_store = metadata_store
+
+        self._handlers = {
+            handler_name: handler(kv_store, metadata_store)
+            for handler_name, handler in self.HANDLERS.items()
+        }
+
+    def response(self, command):
         command_name = command[0].upper()
 
-        if command_name not in cls.HANDLERS:
+        if command_name not in self.HANDLERS:
             return "-ERR unknown command\r\n"
 
-        handler = cls.HANDLERS[command_name]
-        return handler.response(store, *command[1:])
+        handler = self._handlers[command_name]
+        return handler.response(*command[1:])

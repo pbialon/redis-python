@@ -4,10 +4,9 @@ from time import time
 SetCommandOptions = namedtuple("SetCommandOptions", ["key", "value", "expire_time"])
 
 
-class Store:
-    def __init__(self, role):
+class KVStore:
+    def __init__(self):
         self._store = {}
-        self._role = role
 
     def set(self, set_command_options: SetCommandOptions):
         key = set_command_options.key
@@ -23,9 +22,6 @@ class Store:
             return None
 
         return value
-
-    def get_role(self):
-        return self._role
 
     def _is_expired(self, expiration):
         return expiration is not None and expiration < self._get_current_ts()
