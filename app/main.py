@@ -40,18 +40,17 @@ def main():
 
     role = get_role(args)
     kv_store = KVStore()
-    metadata_store = MetadataStore(role, '')
+    metadata_store = MetadataStore(role)
 
+    accept_connections(server_socket, kv_store, metadata_store)
+
+def accept_connections(server_socket, kv_store, metadata_store):
     threads = []
     while True:
         conn, addr = server_socket.accept()
         thread = threading.Thread(target=handle_connection, args=(conn, addr, kv_store, metadata_store))
         threads.append(thread)
         thread.start()
-
-    # for thread in threads:
-    #     thread.join()
-
 
 
 def parse_arguments():

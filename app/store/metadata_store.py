@@ -1,5 +1,5 @@
 class MetadataStore:
-    def __init__(self, role, replication_id):
+    def __init__(self, role):
         self._role = role
 
     def role(self):
