@@ -1,3 +1,4 @@
+import signal
 import socket
 import sys
 import threading
@@ -5,8 +6,12 @@ from .parser import DecoderManager
 from .commands import CommandHandler
 from .store import Store
 
+
+def signal_handler(sig, frame):
+    print('\nServer is shutting down...')
+    sys.exit(0)
+
 def handle_connection(conn, addr, store):
-    print(f"Connection from {addr} in thread {threading.current_thread().name}")
     with conn:
         disconneted = False
         while not disconneted:
@@ -22,7 +27,7 @@ def handle_connection(conn, addr, store):
             conn.sendall(response.encode())
 
 def main():
-    print("Logs from your program will appear here!")
+    signal.signal(signal.SIGINT, signal_handler)
 
     server_socket = socket.create_server(("localhost", port()), reuse_port=True)
     
