@@ -1,3 +1,4 @@
+from app.parser import BulkString
 from app.store import SetCommandOptions
 
 
@@ -46,7 +47,7 @@ class Get:
 class Info:
     @classmethod
     def response(cls, store, *args):
-        return "+INFO\r\n"
+        return BulkString.encode("role:master")
 
 
 class CommandHandler:
