@@ -8,6 +8,7 @@ from app.store.kv_store import KVStore
 from app.store.metadata_store import MetadataStore
 from .protocol.parser import DecoderManager
 from .commands.handler import CommandHandler
+from app.server import Server
 
 
 def signal_handler(sig, frame):
@@ -15,42 +16,12 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
-def handle_connection(conn, addr, kv_store, metadata_store):
-    handler = CommandHandler(kv_store, metadata_store)
-    with conn:
-        disconneted = False
-        while not disconneted:
-            received = conn.recv(1024)
-            if not received:
-                disconneted = True
-                break
-
-            data = received.decode()
-            command = DecoderManager.decode(data)
-            response = handler.response(command)
-
-            conn.sendall(response.encode())
-
-
-def main():
-    signal.signal(signal.SIGINT, signal_handler)
-    args = parse_arguments()
-
-    server_socket = socket.create_server(("localhost", args.port), reuse_port=True)
-
-    role = get_role(args)
+def create_server(role):
     kv_store = KVStore()
     metadata_store = MetadataStore(role)
+    command_handler = CommandHandler(kv_store, metadata_store)
 
-    accept_connections(server_socket, kv_store, metadata_store)
-
-def accept_connections(server_socket, kv_store, metadata_store):
-    threads = []
-    while True:
-        conn, addr = server_socket.accept()
-        thread = threading.Thread(target=handle_connection, args=(conn, addr, kv_store, metadata_store))
-        threads.append(thread)
-        thread.start()
+    return Server(command_handler, DecoderManager)
 
 
 def parse_arguments():
@@ -64,6 +35,17 @@ def get_role(args):
     if args.replicaof is None:
         return "master"
     return "slave"
+
+
+def main():
+    signal.signal(signal.SIGINT, signal_handler)
+    args = parse_arguments()
+    role = get_role(args)
+
+    server = create_server(role)
+
+    server.start("localhost", args.port)
+    server.accept_connections()
 
 
 if __name__ == "__main__":
