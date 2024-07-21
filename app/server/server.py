@@ -1,6 +1,8 @@
 import socket
 import threading
 
+from app.server.replication_manager import ReplicationManager
+
 
 class Role:
     MASTER = "master"
@@ -25,7 +27,10 @@ class Server:
         self._server_socket = socket.create_server((host, port), reuse_port=True)
 
         if self._role() == Role.SLAVE:
-            self._start_replication(ReplicaOf(replicaof))
+            replica_of = ReplicaOf(replicaof)
+            self._replication_manager = ReplicationManager(self._encoder, self._decoder, replica_of.host, replica_of.port)
+            self._replication_manager.start()
+            self._replication_manager.handshake()
 
     def accept_connections(self):
         threads = []
@@ -53,13 +58,6 @@ class Server:
         command = self._decoder.decode(data)
         response = self._command_handler.response(command)
         return response.encode()
-
-    def _start_replication(self, replicaof):
-        master_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        master_socket.connect((replicaof.host, int(replicaof.port)))
-
-        response = self._encoder.encode(["PING"])
-        master_socket.send(response.encode())
 
     def _role(self):
         return self._metadata_store.role()
