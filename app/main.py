@@ -9,8 +9,9 @@ from .store import Store
 
 
 def signal_handler(sig, frame):
-    print('\nServer is shutting down...')
+    print("\nServer is shutting down...")
     sys.exit(0)
+
 
 def handle_connection(conn, addr, store):
     with conn:
@@ -20,19 +21,20 @@ def handle_connection(conn, addr, store):
             if not received:
                 disconneted = True
                 break
-            
+
             data = received.decode()
             command = DecoderManager.decode(data)
             response = CommandHandler.response(store, command)
-            
+
             conn.sendall(response.encode())
+
 
 def main():
     signal.signal(signal.SIGINT, signal_handler)
     args = parse_arguments()
 
     server_socket = socket.create_server(("localhost", args.port), reuse_port=True)
-    
+
     role = get_role(args)
     store = Store(role)
 
@@ -42,9 +44,10 @@ def main():
         thread = threading.Thread(target=handle_connection, args=(conn, addr, store))
         threads.append(thread)
         thread.start()
-    
+
     # for thread in threads:
     #     thread.join()
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="A simple Redis-like server")
@@ -57,6 +60,7 @@ def get_role(args):
     if args.replicaof is None:
         return "master"
     return "slave"
+
 
 def port():
     args = sys.argv[1:]

@@ -6,4 +6,3 @@ class Get:
         if value is None:
             return "$-1\r\n"
         return f"+{value}\r\n"
-    

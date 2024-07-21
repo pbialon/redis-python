@@ -1,4 +1,3 @@
-
 class Echo:
     @classmethod
     def response(cls, store, *args):

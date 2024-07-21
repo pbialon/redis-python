@@ -1,6 +1,7 @@
 import unittest
 from app.protocol.parser import Array, BulkString, ParsingError
 
+
 class TestEncodeBulkString(unittest.TestCase):
     def test_encode_string(self):
         data = "Hello, World!"
@@ -16,6 +17,7 @@ class TestEncodeBulkString(unittest.TestCase):
         null_data = None
         null_encoded_data = BulkString.encode(null_data)
         self.assertEqual(null_encoded_data, "$-1\r\n")
+
 
 class TestDecodeBulkString(unittest.TestCase):
     def test_decode_string(self):
@@ -35,21 +37,22 @@ class TestDecodeBulkString(unittest.TestCase):
 
     def test_invalid_format_missing_CRLF(self):
         # Missing CRLF at the end
-        invalid_data = "$5\r\nHello"  
+        invalid_data = "$5\r\nHello"
         with self.assertRaises(ParsingError):
             BulkString._parse(invalid_data)
-        
+
     def test_invalid_format_missing_dollar(self):
         # Missing $ at the beginning
         invalid_data = "5\r\nHello\r\n"
         with self.assertRaises(ParsingError):
             BulkString._parse(invalid_data)
-    
+
     def test_invalid_format_invalid_length(self):
         # Invalid length format
         invalid_data = "$a\r\nHello\r\n"
         with self.assertRaises(ParsingError):
             BulkString._parse(invalid_data)
+
 
 class TestEncodeArray(unittest.TestCase):
     def test_encode_empty_array(self):
@@ -84,6 +87,4 @@ class TestDecodeArray(unittest.TestCase):
     def test_decode_array_with_integers(self):
         encoded_data = "*3\r\n$1\r\n1\r\n$1\r\n2\r\n$1\r\n3\r\n"
         decoded_data = Array.decode(encoded_data)
-        self.assertEqual(decoded_data, ['1', '2', '3'])
-
-
+        self.assertEqual(decoded_data, ["1", "2", "3"])

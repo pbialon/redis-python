@@ -7,7 +7,7 @@ class Set:
         set_command_options = cls.get_args(args)
         store.set(set_command_options)
         return f"+OK\r\n"
-    
+
     @classmethod
     def get_args(cls, args):
         key = args[0]
@@ -17,6 +17,4 @@ class Set:
             expire_time = int(args[3])
             return SetCommandOptions(key, value, expire_time)
 
-        
         return SetCommandOptions(key, value, None)
-    

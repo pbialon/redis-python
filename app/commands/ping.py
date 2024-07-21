@@ -1,4 +1,3 @@
-
 class Ping:
     @classmethod
     def response(cls, store, *args):
