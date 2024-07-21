@@ -2,6 +2,7 @@ import signal
 import socket
 import sys
 import threading
+import argparse
 from .parser import DecoderManager
 from .commands import CommandHandler
 from .store import Store
@@ -28,8 +29,9 @@ def handle_connection(conn, addr, store):
 
 def main():
     signal.signal(signal.SIGINT, signal_handler)
+    args = parse_arguments()
 
-    server_socket = socket.create_server(("localhost", port()), reuse_port=True)
+    server_socket = socket.create_server(("localhost", args.port), reuse_port=True)
     
     store = Store()
 
@@ -42,6 +44,13 @@ def main():
     
     # for thread in threads:
     #     thread.join()
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="A simple Redis-like server")
+    parser.add_argument("--port", type=int, default=6379, help="Port to listen on")
+    parser.add_argument("--replicaof", type=str, help="Replicate another server")
+    return parser.parse_args()
+
 
 def port():
     args = sys.argv[1:]
