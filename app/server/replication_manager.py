@@ -12,14 +12,16 @@ class ReplicationManager:
 
     def handshake(self, self_info):
         self._send(["PING"])
-        response = self._receive()
-        # response should be PONG
+        self._receive()
 
         self._send(["REPLCONF", "listening-port", f"{self_info.port}"])
-        response = self._receive()
+        self._receive()
 
         self._send(["REPLCONF", "capa", "psync2"])
-        response = self._receive()
+        self._receive()
+        
+        self._send(["PSYNC", "?", "-1"])
+        self._receive()
 
     def _send(self, message):
         message_encoded_in_redis_protocol = self._encoder.encode(message)
