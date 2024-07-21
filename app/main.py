@@ -39,7 +39,7 @@ def main():
     #     thread.join()
 
 def port():
-    args = sys.argv[2:]
+    args = sys.argv[1:]
     if len(args) == 0:
         return 6379
     if args[0] == "--port":

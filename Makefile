@@ -3,6 +3,3 @@ test:
 	
 install:
 	pipenv install --dev
-
-run:
-	pipenv run python -m app.main ${PARAMS}
