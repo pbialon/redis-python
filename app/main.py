@@ -2,6 +2,7 @@ import signal
 import sys
 import argparse
 
+from app.server.server_info import ServerInfo
 from app.store.kv_store import KVStore
 from app.store.metadata_store import MetadataStore
 from app.protocol.parser import DecoderManager, EncoderManager
@@ -37,6 +38,12 @@ def get_role(args):
         return "master"
     return "slave"
 
+def get_replica_of(replicaof):
+    if replicaof is None:
+        return None
+    
+    host, port = replicaof.split(" ")
+    return ServerInfo(host, int(port))
 
 def main():
     signal.signal(signal.SIGINT, signal_handler)
@@ -45,7 +52,9 @@ def main():
 
     server = create_server(role)
 
-    server.start(args.host, args.port, args.replicaof)
+    server_info = ServerInfo(args.host, args.port)
+    replica_of = get_replica_of(args.replicaof)
+    server.start(server_info, replica_of)
     server.accept_connections()
 
 

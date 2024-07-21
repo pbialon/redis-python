@@ -117,9 +117,27 @@ class BulkString(RESP):
         return length, data
 
 
+class SimpleString(RESP):
+    FIRST_BYTE = "+"
+
+    @classmethod
+    def encode(cls, data):
+        return f"{cls.FIRST_BYTE}{data}{CRLF}"
+
+    @classmethod
+    def decode(cls, data):
+        if not data.startswith(cls.FIRST_BYTE):
+            raise ParsingError(f"No {cls.FIRST_BYTE} at the beginning")
+        return data[1:-2]
+
+
 class DecoderManager:
-    ALL_FIRST_BYTES = {BulkString.FIRST_BYTE, Array.FIRST_BYTE}
-    FIRST_BYTES_TO_RESP = {BulkString.FIRST_BYTE: BulkString, Array.FIRST_BYTE: Array}
+    ALL_FIRST_BYTES = {BulkString.FIRST_BYTE, Array.FIRST_BYTE, SimpleString.FIRST_BYTE}
+    FIRST_BYTES_TO_RESP = {
+        BulkString.FIRST_BYTE: BulkString,
+        Array.FIRST_BYTE: Array,
+        SimpleString.FIRST_BYTE: SimpleString,
+    }
 
     @classmethod
     def decode(cls, data):

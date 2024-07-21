@@ -16,6 +16,7 @@ class ReplicaOf:
         self.port = int(port)
 
 
+
 class Server:
     def __init__(self, command_handler, metadata_store, decoder, encoder):
         self._command_handler = command_handler
@@ -23,14 +24,13 @@ class Server:
         self._decoder = decoder
         self._encoder = encoder
 
-    def start(self, host, port, replicaof):
-        self._server_socket = socket.create_server((host, port), reuse_port=True)
+    def start(self, server_info, replica_of):
+        self._server_socket = socket.create_server((server_info.host, server_info.port), reuse_port=True)
 
         if self._role() == Role.SLAVE:
-            replica_of = ReplicaOf(replicaof)
-            self._replication_manager = ReplicationManager(self._encoder, self._decoder, replica_of.host, replica_of.port)
-            self._replication_manager.start()
-            self._replication_manager.handshake()
+            self._replication_manager = ReplicationManager(self._encoder, self._decoder)
+            self._replication_manager.start(replica_of)
+            self._replication_manager.handshake(server_info)
 
     def accept_connections(self):
         threads = []

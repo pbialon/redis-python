@@ -2,23 +2,24 @@ import socket
 
 
 class ReplicationManager:
-    def __init__(self, encoder, decoder, master_host, master_port):
+    def __init__(self, encoder, decoder):
         self._encoder = encoder
         self._decoder = decoder
-        self._master_host = master_host
-        self._master_port = master_port
 
-    def start(self):
+    def start(self, master_info):
         self._master_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._master_socket.connect((self._master_host, int(self._master_port)))
+        self._master_socket.connect((master_info.host, master_info.port))
 
-    def handshake(self):
+    def handshake(self, self_info):
         self._send(["PING"])
-        # response = self._receive()
+        response = self._receive()
         # response should be PONG
 
-        self._send(["REPLCONF", "listening-port", self._master_port])
+        self._send(["REPLCONF", "listening-port", f"{self_info.port}"])
+        response = self._receive()
+        
         self._send(["REPLCONF", "capa", "psync2"])
+        response = self._receive()
 
     def _send(self, message):
         message_encoded_in_redis_protocol = self._encoder.encode(message)
@@ -29,5 +30,5 @@ class ReplicationManager:
         if not received:
             return None
 
-        message = self.received.decode()
+        message = received.decode()
         self._decoder.decode(message)
