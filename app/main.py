@@ -33,7 +33,8 @@ def main():
 
     server_socket = socket.create_server(("localhost", args.port), reuse_port=True)
     
-    store = Store()
+    role = get_role(args)
+    store = Store(role)
 
     threads = []
     while True:
@@ -51,6 +52,11 @@ def parse_arguments():
     parser.add_argument("--replicaof", type=str, help="Replicate another server")
     return parser.parse_args()
 
+
+def get_role(args):
+    if args.replicaof is None:
+        return "master"
+    return "slave"
 
 def port():
     args = sys.argv[1:]

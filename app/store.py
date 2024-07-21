@@ -4,8 +4,9 @@ from time import time
 SetCommandOptions = namedtuple("SetCommandOptions", ["key", "value", "expire_time"])
 
 class Store:
-    def __init__(self):
+    def __init__(self, role):
         self._store = {}
+        self._role = role
         
     def set(self, set_command_options: SetCommandOptions):
         key = set_command_options.key
@@ -14,8 +15,6 @@ class Store:
         
         self._store[key] = (value, expiration)
         
-
-    
     def get(self, key):
         value, expiration = self._store.get(key)
         if self._is_expired(expiration):
@@ -23,6 +22,9 @@ class Store:
             return None
         
         return value
+    
+    def get_role(self):
+        return self._role
     
     def _is_expired(self, expiration):
         return expiration is not None and expiration < self._get_current_ts()

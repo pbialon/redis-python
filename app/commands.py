@@ -47,7 +47,8 @@ class Get:
 class Info:
     @classmethod
     def response(cls, store, *args):
-        return BulkString.encode("role:master")
+        role = store.get_role()
+        return BulkString.encode(f"role:{role}")
 
 
 class CommandHandler:
