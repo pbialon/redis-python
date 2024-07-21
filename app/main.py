@@ -2,8 +2,9 @@ import socket
 import threading
 from .parser import DecoderManager
 from .commands import CommandHandler
+from .store import Store
 
-def handle_connection(conn, addr):
+def handle_connection(conn, addr, store):
     print(f"Connection from {addr} in thread {threading.current_thread().name}")
     with conn:
         disconneted = False
@@ -15,7 +16,7 @@ def handle_connection(conn, addr):
             
             data = received.decode()
             command = DecoderManager.decode(data)
-            response = CommandHandler.response(command)
+            response = CommandHandler.response(store, command)
             
             conn.sendall(response.encode())
 
@@ -23,11 +24,13 @@ def main():
     print("Logs from your program will appear here!")
 
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
+    
+    store = Store()
 
     threads = []
     while True:
         conn, addr = server_socket.accept()
-        thread = threading.Thread(target=handle_connection, args=(conn, addr))
+        thread = threading.Thread(target=handle_connection, args=(conn, addr, store))
         threads.append(thread)
         thread.start()
     
