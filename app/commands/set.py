@@ -1,5 +1,3 @@
-
-    
 from app.store import SetCommandOptions
 
 
