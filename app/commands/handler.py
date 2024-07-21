@@ -1,6 +1,7 @@
 from app.commands.echo import Echo
 from app.commands.get import Get
 from app.commands.info import Info
+from app.commands.replconf import ReplConf
 from app.commands.set import Set
 from app.commands.ping import Ping
 
@@ -12,6 +13,7 @@ class CommandHandler:
         "SET": Set,
         "GET": Get,
         "INFO": Info,
+        "REPLCONF": ReplConf,
     }
 
     def __init__(self, kv_store, metadata_store):

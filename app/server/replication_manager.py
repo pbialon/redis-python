@@ -22,7 +22,7 @@ class ReplicationManager:
         self._master_socket.connect((self._master_host, int(self._master_port)))
 
         self._send(['PING'])
-        response = self._receive()
+        # response = self._receive()
         # response should be PONG
         
         self._send(['REPLCONF', 'listening-port', self._master_port])

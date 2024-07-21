@@ -1,6 +1,6 @@
 from app.commands.base_command import BaseCommand
 
 
-class Ping(BaseCommand):
+class ReplConf(BaseCommand):
     def response(self, *args):
-        return "+PONG\r\n"
+        return "+OK\r\n"
