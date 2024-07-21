@@ -6,7 +6,7 @@ from app.store.kv_store import KVStore
 from app.store.metadata_store import MetadataStore
 from app.protocol.parser import DecoderManager, EncoderManager
 from app.commands.handler import CommandHandler
-from app.server import Server
+from app.server.server import Server
 
 
 def signal_handler(sig, frame):
