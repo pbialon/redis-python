@@ -26,6 +26,7 @@ def create_server(role):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="A simple Redis-like server")
+    parser.add_argument("--host", type=str, default="localhost", help="Host to listen on")
     parser.add_argument("--port", type=int, default=6379, help="Port to listen on")
     parser.add_argument("--replicaof", type=str, help="Replicate another server")
     return parser.parse_args()
@@ -44,7 +45,7 @@ def main():
 
     server = create_server(role)
 
-    server.start("localhost", args.port)
+    server.start(args.host, args.port)
     server.accept_connections()
 
 
