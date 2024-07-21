@@ -1,4 +1,4 @@
-from app.parser import BulkString
+from app.protocol.parser import BulkString
 from app.store import SetCommandOptions
 
 

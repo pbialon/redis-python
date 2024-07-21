@@ -1,5 +1,5 @@
 import unittest
-from app.parser import Array, BulkString, ParsingError
+from app.protocol.parser import Array, BulkString, ParsingError
 
 class TestEncodeBulkString(unittest.TestCase):
     def test_encode_string(self):

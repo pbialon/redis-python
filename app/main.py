@@ -3,7 +3,7 @@ import socket
 import sys
 import threading
 import argparse
-from .parser import DecoderManager
+from .protocol.parser import DecoderManager
 from .commands import CommandHandler
 from .store import Store
 
