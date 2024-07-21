@@ -43,13 +43,19 @@ class Get:
             return "$-1\r\n"
         return f"+{value}\r\n"
     
-    
+class Info:
+    @classmethod
+    def response(cls, store, *args):
+        return "+INFO\r\n"
+
+
 class CommandHandler:
     HANDLERS = {
         "PING": Ping,
         "ECHO": Echo,
         "SET": Set,
         "GET": Get,
+        "INFO": Info,
     }
     
     @classmethod
