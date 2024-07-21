@@ -31,6 +31,6 @@ class ReplicationManager:
         received = self._master_socket.recv(1024)
         if not received:
             return None
-
+        
         message = received.decode()
         self._decoder.decode(message)
