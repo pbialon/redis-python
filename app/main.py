@@ -4,7 +4,7 @@ import sys
 import threading
 import argparse
 from .protocol.parser import DecoderManager
-from .commands import CommandHandler
+from .commands.handler import CommandHandler
 from .store import Store
 
 
