@@ -3,6 +3,7 @@ from time import time
 
 SetCommandOptions = namedtuple("SetCommandOptions", ["key", "value", "expire_time"])
 
+Value = namedtuple("Value", ["value", "expiration"])
 
 class KVStore:
     def __init__(self):
@@ -13,15 +14,17 @@ class KVStore:
         value = set_command_options.value
         expiration = self._expiration_time(set_command_options.expire_time)
 
-        self._store[key] = (value, expiration)
+        self._store[key] = Value(value, expiration)
 
     def get(self, key):
-        value, expiration = self._store.get(key)
-        if self._is_expired(expiration):
+        value = self._store.get(key)
+        if value is None:
+            return None
+        if self._is_expired(value.expiration):
             del self._store[key]
             return None
 
-        return value
+        return value.value
 
     def _is_expired(self, expiration):
         return expiration is not None and expiration < self._get_current_ts()
