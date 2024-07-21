@@ -19,7 +19,7 @@ class ReplicationManager:
 
         self._send(["REPLCONF", "capa", "psync2"])
         self._receive()
-        
+
         self._send(["PSYNC", "?", "-1"])
         self._receive()
 
@@ -31,6 +31,6 @@ class ReplicationManager:
         received = self._master_socket.recv(1024)
         if not received:
             return None
-        
+
         message = received.decode()
         self._decoder.decode(message)
