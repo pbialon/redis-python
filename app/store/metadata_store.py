@@ -1,8 +1,12 @@
-
 class MetadataStore:
     def __init__(self, role, replication_id):
         self._role = role
-        self._replication_id = replication_id
-        
-    def get_role(self):
+
+    def role(self):
         return self._role
+
+    def replication_id(self):
+        return "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb"
+
+    def master_repl_offset(self):
+        return 0
