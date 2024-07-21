@@ -28,11 +28,15 @@ class Server:
                     disconneted = True
                     break
 
-                data = received.decode()
-                command = self._decoder.decode(data)
-                response = self._command_handler.response(command)
+                response = self._prepare_response(received)
 
-                conn.sendall(response.encode())
+                conn.sendall(response)
+                
+    def _prepare_response(self, received):
+        data = received.decode()
+        command = self._decoder.decode(data)
+        response = self._command_handler.response(command)
+        return response.encode()
 
     def _role(self):
         return self._metadata_store.role()
