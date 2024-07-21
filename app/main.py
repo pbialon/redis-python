@@ -53,6 +53,7 @@ def main():
     #     thread.join()
 
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="A simple Redis-like server")
     parser.add_argument("--port", type=int, default=6379, help="Port to listen on")
@@ -64,15 +65,6 @@ def get_role(args):
     if args.replicaof is None:
         return "master"
     return "slave"
-
-
-def port():
-    args = sys.argv[1:]
-    if len(args) == 0:
-        return 6379
-    if args[0] == "--port":
-        return int(args[1])
-    return 6379
 
 
 if __name__ == "__main__":
